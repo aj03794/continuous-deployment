@@ -102,7 +102,7 @@ const unzipDir = ({
 			location: resolvePath(zipLocation, `${zipName}.zip`)
 		})
 		.then(() => resolve({
-			appLocation: resolvePath(zipLocation, zipName)
+			appLocation: resolvePath(zipLocation, repo, zipName)
 		}))
 	})
 
