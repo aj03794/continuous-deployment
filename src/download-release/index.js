@@ -47,11 +47,11 @@ export const x = ({
 							repo,
 							outputDir
 						})
-						.then(() => checkIfAppExists({
-							zipLocation: outputDir,
-							zipName: `${repo}-${version}`,
-							repo
-						}))
+						// .then(() => checkIfAppExists({
+						// 	zipLocation: outputDir,
+						// 	zipName: `${repo}-${version}`,
+						// 	repo
+						// }))
 						.then(() => unzipDir({
 							zipLocation: outputDir,
 							zipName: `${repo}-${version}`,
