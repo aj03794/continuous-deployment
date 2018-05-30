@@ -1,9 +1,9 @@
 import { redis } from './pubsub/redis'
-import { x } from './download-release'
+import { handleReleaseDownload } from './download-release'
 
 const { publish, subscribe } = redis()
 
-x({
+handleReleaseDownload({
 	publish,
 	subscribe
 })

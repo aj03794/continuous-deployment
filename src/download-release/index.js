@@ -2,10 +2,11 @@ import downloadRelease from 'download-github-release'
 import { resolve as resolvePath } from 'path'
 import { exec, spawn } from 'child_process'
 import { cwd } from 'process'
-import { createReadStream, ensureDirSync, removeSync } from 'fs-extra'
+import { ensureDirSync, removeSync, existsSync } from 'fs-extra'
 import unzip from 'unzip'
+import { address } from 'ip'
 
-export const x = ({
+export const handleReleaseDownload = ({
 	publish,
 	subscribe
 }) => {
@@ -18,58 +19,78 @@ export const x = ({
     .then(({ allMsgs, filterMsgs }) => {
         filterMsgs(msg => {
             if (msg.data) {
-							const {
-								githubUser: user,
-								repoName: repo,
-								version
-							} = JSON.parse(msg.data[1])
-							if(user && repo && version) {
-								console.log('user, repo, and version, exist')
-								return true
-							}
-							return false
+				const {
+					githubUser: user,
+					repoName: repo,
+					version
+				} = JSON.parse(msg.data[1])
+				if(user && repo && version) {
+					console.log('user, repo, and version, exist')
+					return true
+				}
+				return false
             }
             return false
 						// return  msg
         }).subscribe(msg => {
             console.log('filteredMsg', msg)
-						const {
-							githubUser: user,
-							repoName: repo,
-							version
-						} = JSON.parse(msg.data[1])
-						// console.log('outputdir', outputDir)
-						// console.log('githubUser', user)
-						// console.log('repoName', repo)
-						// console.log('---->',  `${repo}-${version}`)
-						doReleaseDownload({
-							user,
-							repo,
-							outputDir
-						})
-						// .then(() => checkIfAppExists({
-						// 	zipLocation: outputDir,
-						// 	zipName: `${repo}-${version}`,
-						// 	repo
-						// }))
-						.then(() => unzipDir({
-							zipLocation: outputDir,
-							zipName: `${repo}-${version}`,
-							repo
-						}))
-						.then(({
-							appLocation
-						}) => {
-							publish()
-							.then(({ connect }) => connect())
-							.then(({ send }) => send({
-								channel: 'continuous delivery',
-								data: {
-									appName: repo,
-									appLocation
-								}
-							}))
-						})
+			const {
+				githubUser: user,
+				repoName: repo,
+				version
+			} = JSON.parse(msg.data[1])
+			checkIfAppExists({
+				outputDir,
+				folder: `${repo}-${version}`,
+				repo
+			})
+			.then(({
+				versionAlreadyDownloaded
+			}) => {
+				if (versionAlreadyDownloaded) {
+					console.log(`${version} from ${repo} already is downloaded`)
+					return Promise.reject({
+						method: 'handleReleaseDownload',
+						data: {
+							reason: 'Version of app already exists',
+							err: null
+						}
+					})
+				}
+				console.log(`${version} from ${repo} has not been downloaded`)
+				return Promise.resolve()
+			})
+			.then(() => doReleaseDownload({
+				user,
+				repo,
+				outputDir
+			}))
+			.then(() => unzipDir({
+				zipLocation: outputDir,
+				zipName: `${repo}-${version}`,
+				repo
+			}))
+			.then(({
+				appLocation
+			}) => {
+				console.log('Alerting app of new version')
+				console.log('address', address())
+				publish()
+				.then(({ connect }) => connect())
+				.then(({ send }) => send({
+					channel: 'continuous delivery',
+					data: {
+						server: {
+							port: 4200,
+							address: address()
+						},
+						appName: repo,
+						appLocation,
+						appVersion: version
+					}
+				}))
+			})
+			.catch(err => console.log('ERROR - handleReleaseDownload', err))
         })
     })
 }
@@ -80,11 +101,6 @@ const unzipDir = ({
 	repo
 }) => new Promise((resolve, reject) => {
 	console.log(`unzipping ${zipName}`)
-	// console.log('--->', `${zipLocation}/${zipName}`)
-	// console.log('====>', zipLocation)
-	// console.log('zipName', zipName)
-	// console.log('ASDASDASD')
-	// console.log('asdfa', resolvePath(zipLocation, repo))
 	ensureDirSync(resolvePath(zipLocation, repo))
 	const ls = spawn(`unzip`, [`${zipName}`, `-d${repo}/${zipName}`], { cwd: zipLocation });
 
@@ -134,4 +150,17 @@ const doReleaseDownload = ({
 	// use request
 	// url https://api.github.com/repos/aj03794/raspberry-pi-camera/releases/latest
 	// from this we can the assets URL
+})
+
+const checkIfAppExists = ({
+	outputDir,
+	folder,
+	repo
+}) => new Promise((resolve, reject) => {
+	const location = resolvePath(outputDir, repo, folder)
+	console.log('Checking if app exists', resolvePath(outputDir, repo, folder))
+	console.log(existsSync(location))
+	resolve({
+		versionAlreadyDownloaded: existsSync(location)
+	})
 })
