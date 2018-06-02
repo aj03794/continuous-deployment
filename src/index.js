@@ -1,9 +1,13 @@
 import { redis } from './pubsub/redis'
-import { x } from './download-release'
+import { slack as slackCreator } from './slack'
+import { continuousDeployment } from './continuous-deployment'
 
 const { publish, subscribe } = redis()
 
-x({
+const slack = slackCreator({ publish })
+
+continuousDeployment({
 	publish,
-	subscribe
+	subscribe,
+	slack
 })
