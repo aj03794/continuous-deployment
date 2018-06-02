@@ -4,6 +4,8 @@ import { continuousDeployment } from './continuous-deployment'
 
 const { publish, subscribe } = redis()
 
+console.log()
+
 const slack = slackCreator({ publish })
 
 continuousDeployment({
