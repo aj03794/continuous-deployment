@@ -6,10 +6,14 @@ import { ensureDirSync, removeSync, existsSync } from 'fs-extra'
 import unzip from 'unzip'
 import { address } from 'ip'
 
-export const handleReleaseDownload = ({
+import { unzipDir } from './unzip-dir'
+import { doReleaseDownload } from './release-download'
+
+export const continuousDeployment = ({
 	publish,
-	subscribe
-}) => {
+	subscribe,
+	slack
+}) => new Promise((resolve, reject) => {
 	const outputDir = resolvePath(cwd(), 'downloads')
 	ensureDirSync(outputDir)
 	subscribe({
@@ -39,6 +43,15 @@ export const handleReleaseDownload = ({
 				repoName: repo,
 				version
 			} = JSON.parse(msg.data[1])
+			slack({
+				slackMsg: `DEPLOYING NEW VERSION OF: ${repo} version: ${version}`
+			})
+			slack({
+				slackMsg: {
+					repo,
+					step: 'Checking if app exists'
+				}
+			})
 			checkIfAppExists({
 				outputDir,
 				folder: `${repo}-${version}`,
@@ -49,33 +62,80 @@ export const handleReleaseDownload = ({
 			}) => {
 				if (versionAlreadyDownloaded) {
 					console.log(`${version} from ${repo} already is downloaded`)
-					return Promise.reject({
-						method: 'handleReleaseDownload',
-						data: {
-							reason: 'Version of app already exists',
-							err: null
+					slack({
+						slackMsg: {
+							repo,
+							step: `versionAlreadyDownloaded - version: ${verison} - TRUE`,
+							
 						}
 					})
+					return resolve()
 				}
+				slack({
+					slackMsg: {
+						repo,
+						step: `versionAlreadyDownloaded - version: ${version} - FALSE`,
+						
+					}
+				})
 				console.log(`${version} from ${repo} has not been downloaded`)
 				return Promise.resolve()
 			})
-			.then(() => doReleaseDownload({
-				user,
-				repo,
-				outputDir
-			}))
-			.then(() => unzipDir({
-				zipLocation: outputDir,
-				zipName: `${repo}-${version}`,
-				repo
-			}))
+			.then(() => {
+				slack({
+					slackMsg: {
+						repo,
+						step: 'doReleaseDownload'
+					}
+				})
+				return doReleaseDownload({
+					user,
+					repo,
+					outputDir,
+					downloadRelease,
+					exec
+				})
+			})
+			.then(() => {
+				slack({
+					slackMsg: {
+						repo,
+						step: 'unzipDir'
+					}
+				})
+				return unzipDir({
+					zipLocation: outputDir,
+					zipName: `${repo}-${version}`,
+					repo,
+					unzip,
+					spawn,
+					removeSync,
+					ensureDirSync,
+					resolvePath
+				})
+			})
+			.catch(err => {
+				slack({
+					slackMsg: {
+						repo,
+						step: 'unzipDir',
+						err
+					}
+				})
+				return reject()
+			})
 			.then(({
 				appLocation
 			}) => {
 				console.log('Alerting app of new version')
+				slack({
+					slackMsg: {
+						repo,
+						msg: `Success! Alerting apps that ${version} is available`,
+					}
+				})
 				console.log('address', address())
-				publish()
+				return publish()
 				.then(({ connect }) => connect())
 				.then(({ send }) => send({
 					channel: 'continuous delivery',
@@ -90,66 +150,18 @@ export const handleReleaseDownload = ({
 					}
 				}))
 			})
-			.catch(err => console.log('ERROR - handleReleaseDownload', err))
+			.catch(err => {
+				slack({
+					slackMsg: {
+						repo,
+						msg: `Error Deploying ${repo}-${version}`,
+						err
+					}
+				})
+				return reject()
+			})
         })
     })
-}
-
-const unzipDir = ({
-	zipLocation,
-	zipName,
-	repo
-}) => new Promise((resolve, reject) => {
-	console.log(`unzipping ${zipName}`)
-	ensureDirSync(resolvePath(zipLocation, repo))
-	const ls = spawn(`unzip`, [`${zipName}`, `-d${repo}/${zipName}`], { cwd: zipLocation });
-
-	ls.stdout.on('data', (data) => {
-	  // console.log(`stdout: ${data}`);
-	});
-
-	ls.stderr.on('data', (data) => {
-	  console.log(`unzipDir stderr: ${data}`)
-	})
-
-	ls.on('close', (code) => {
-	  console.log(`unzipDir exited with code ${code}`);
-		deleteFileOrFolder({
-			location: resolvePath(zipLocation, `${zipName}.zip`)
-		})
-		.then(() => resolve({
-			appLocation: resolvePath(zipLocation, repo, zipName)
-		}))
-	})
-
-})
-
-const deleteFileOrFolder = ({
-	location
-}) => new Promise((resolve, reject) => {
-	console.log('Deleting file/folder:', location)
-	removeSync(location)
-	resolve()
-})
-
-const doReleaseDownload = ({
-	user,
-	repo,
-	outputDir
-}) => new Promise((resolve, reject) => {
-	console.log(`Downloading ${repo} by ${user} into ${outputDir}`)
-	exec(`download-github-release --zipped ${user} ${repo} ${outputDir}`, (err, stdout, stderr) => {
-		if (err) {
-			console.log('err', err)
-		}
-		console.log('stdout', stdout)
-		console.log('stderr', stderr)
-		resolve()
-	})
-
-	// use request
-	// url https://api.github.com/repos/aj03794/raspberry-pi-camera/releases/latest
-	// from this we can the assets URL
 })
 
 const checkIfAppExists = ({
