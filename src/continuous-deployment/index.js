@@ -19,7 +19,6 @@ export const continuousDeployment = ({
 	subscribe({
         channel: 'continuous delivery'
     })
-    .then(({ connect }) => connect())
     .then(({ allMsgs, filterMsgs }) => {
         filterMsgs(msg => {
             if (msg.data) {
