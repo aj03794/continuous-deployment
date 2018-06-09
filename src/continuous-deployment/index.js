@@ -134,9 +134,7 @@ export const continuousDeployment = ({
 					}
 				})
 				console.log('address', address())
-				return publish()
-				.then(({ connect }) => connect())
-				.then(({ send }) => send({
+				return publish({
 					channel: 'continuous delivery',
 					data: {
 						server: {
@@ -147,7 +145,7 @@ export const continuousDeployment = ({
 						appLocation,
 						appVersion: version
 					}
-				}))
+				})
 			})
 			.catch(err => {
 				slack({
