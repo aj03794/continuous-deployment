@@ -18,6 +18,6 @@ export const doReleaseDownload = ({
 		}
 		console.log('stdout', stdout)
         console.log('stderr', stderr)
-		return resolve()
+		return resolve({ appLocation: outputDir })
 	})
 })

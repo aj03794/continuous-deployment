@@ -95,24 +95,6 @@ export const continuousDeployment = ({
 					exec
 				})
 			})
-			.then(() => {
-				slack({
-					slackMsg: {
-						repo,
-						step: 'unzipDir'
-					}
-				})
-				return unzipDir({
-					zipLocation: outputDir,
-					zipName: `${repo}-${version}`,
-					repo,
-					unzip,
-					spawn,
-					removeSync,
-					ensureDirSync,
-					resolvePath
-				})
-			})
 			.catch(err => {
 				slack({
 					slackMsg: {
@@ -133,13 +115,16 @@ export const continuousDeployment = ({
 						msg: `Success! Alerting apps that ${version} is available`,
 					}
 				})
-				console.log('address', address())
+				console.log('appName', repo)
+				console.log('appLocation', appLocation)
+				console.log('appVersion', version)
+				console.log('address', process.argv[2] === 'dev' ? '127.0.0.1' : address())
 				return publish({
 					channel: 'continuous delivery',
 					data: {
 						server: {
 							port: 4200,
-							address: address()
+							address: process.argv[2] === 'dev' ? '127.0.0.1' : address()
 						},
 						appName: repo,
 						appLocation,
