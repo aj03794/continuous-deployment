@@ -1,12 +1,9 @@
 import downloadRelease from 'download-github-release'
 import { resolve as resolvePath } from 'path'
-import { exec, spawn } from 'child_process'
+import { exec } from 'child_process'
 import { cwd } from 'process'
-import { ensureDirSync, removeSync, existsSync } from 'fs-extra'
-import unzip from 'unzip'
+import { ensureDirSync, existsSync } from 'fs-extra'
 import { address } from 'ip'
-
-import { unzipDir } from './unzip-dir'
 import { doReleaseDownload } from './release-download'
 
 export const continuousDeployment = ({
