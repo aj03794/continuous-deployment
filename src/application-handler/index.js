@@ -19,15 +19,16 @@ export const initializeApplicationHandler = ({
 
         console.log('msg')
 
-        application({
-            ...tasks
-        }).then(() => {
-                logger.info('Finished')
-            })
-            .catch(err => {
-                logger.error('Error', err)
-            })
+        return application({ ...tasks })
+                .then(() => {
+                    logger.info('Finished')
+                })
+                .catch(err => {
+                    logger.error('Error', err)
+                })
 
     }
+
+    return Promise.resolve()
 
 }

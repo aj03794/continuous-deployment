@@ -6,17 +6,17 @@
 // Turn on the new version of the app
 
 export const application = ({
-    downloadRelease,
-    unzipRelease,
-    deleteReleaseZip,
+    downloadAppRelease,
+    unzipApp,
+    deleteZip,
     turnOffOldApp,
     turnOnNewApp
 }) => {
 
-    downloadRelease()
-        .then(unzipRelease)
-        .then(deleteReleaseZip)
-        .then(turnOffOldApp)
-        .then(turnOnNewApp)
+    return downloadAppRelease()
+            .then(unzipApp)
+            .then(deleteZip)
+            .then(turnOffOldApp)
+            .then(turnOnNewApp)
 
 }

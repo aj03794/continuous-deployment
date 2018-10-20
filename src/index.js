@@ -17,3 +17,6 @@ initalizeApplicationHandler({
     logger,
     ...tasks
 })
+.then(() => {
+	initializePubSubProviders({ newPubSubMsg, getSetting })
+})
