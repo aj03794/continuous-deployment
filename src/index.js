@@ -1,23 +1,19 @@
-import { redis } from './pubsub/redis'
-import { slack as slackCreator } from './slack'
-import { continuousDeployment } from './continuous-deployment'
+import { createSubject } from './infrastructure/rxjs'
+import { logger } from './infrastructure/logger'
+import { initializePubSubProviders } from './infrastructure/pubsub'
+import { initalizeApplicationHandler } from './application-handler'
+import { createTasks } from './tasks'
 
+const {
+	next: newPubSubMessage,
+	filter: pubSubMessageFilter,
+	subscribe: pubSubMessageSubscription
+} = createSubject()
 
-const { publisherCreator, subscriberCreator } = redis({
-	host: process.argv[2] === 'dev' ? '127.0.0.1' : 'main.local'
-})
-Promise.all([
-	publisherCreator(),
-	subscriberCreator()
-])
-.then(([
-	{ publish },
-	{ subscribe }
-]) => {
-	const slack = slackCreator({ publish })
-	return continuousDeployment({
-		publish,
-		subscribe,
-		slack
-	})
+const tasks = createTasks()
+
+initalizeApplicationHandler({
+	pubSubMessageSubscription,
+    logger,
+    ...tasks
 })

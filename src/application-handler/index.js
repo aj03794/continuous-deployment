@@ -1,0 +1,33 @@
+import { queue } from 'async'
+import { application } from '../application'
+
+export const initializeApplicationHandler = ({
+    pubSubMessageSubscription,
+    logger,
+    ...tasks
+}) => {
+
+    console.log('tasks', tasks)
+
+    const q = queue((msg, cb) => {
+        return executeMsg(msg).then(cb)
+    })
+
+    pubSubMessageSubscription(q.push)
+
+    const executeMsg = msg => {
+
+        console.log('msg')
+
+        application({
+            ...tasks
+        }).then(() => {
+                logger.info('Finished')
+            })
+            .catch(err => {
+                logger.error('Error', err)
+            })
+
+    }
+
+}

@@ -34,7 +34,6 @@
   },
   "dependencies": {
     "async": "^2.6.0",
-    "create-subject-with-filter": "0.0.5",
     "download-github-release": "^0.3.2",
     "fs-extra": "^6.0.1",
     "ip": "^1.1.5",
@@ -42,6 +41,7 @@
     "pub-sub-redis": "0.0.5",
     "redis": "^2.8.0",
     "request": "^2.85.0",
+    "subject-with-filter": "^1.0.0",
     "unzip": "^0.1.11"
   }
 }
