@@ -1,4 +1,13 @@
-export const deleteZip = () => () => new Promise((resolve, reject) => {
+export const deleteZip = ({
+    logger
+}) => () => new Promise((resolve, reject) => {
+
+    logger.info({
+        function: 'deleteZip',
+        params: {
+            
+        }
+    })
 
     resolve()
 

@@ -17,13 +17,15 @@ export const initializeApplicationHandler = ({
 
     const executeMsg = msg => {
 
-        console.log('msg')
+        console.log('msg', msg)
 
-        return application({ ...tasks })
+        return application(tasks)
                 .then(() => {
                     logger.info('Finished')
                 })
                 .catch(err => {
+                    console.log(err)
+                    logger.info('adsfasfd')
                     logger.error('Error', err)
                 })
 

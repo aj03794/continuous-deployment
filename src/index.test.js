@@ -1,9 +1,16 @@
 import { assert } from 'chai'
+import { existsSync, removeSync } from 'fs-extra'
+import { resolve as resolvePath } from 'path'
+import { homedir } from 'os'
 
 import { createSubject } from './infrastructure/rxjs'
 import { logger } from './infrastructure/logger'
 import { initializeApplicationHandler } from './application-handler'
+import { application } from './application'
 import { createTasks } from './tasks'
+import { getSetting } from './infrastructure/settings'
+
+process.argv[2] = 'dev'
 
 describe('Downloader application', () => {
 
@@ -16,7 +23,10 @@ describe('Downloader application', () => {
         }
     }
 
-    const tasks = createTasks()
+    const tasks = createTasks({
+        logger,
+        getSetting
+    })
 
     it('should pass', done => {
         done()
@@ -41,6 +51,23 @@ describe('Downloader application', () => {
         .then(() => {
             done()
         })
+
+    })
+
+    it.only('should perform steps in the application layer', done => {
+
+        const {
+            type,
+            downloadsDirectory
+         } = getSetting('downloadAppRelease')
+         const downloadsDirectoryFullPath = resolvePath(homedir(), downloadsDirectory)
+
+        application(tasks)
+            .then(() => {
+                assert.equal(true, existsSync(downloadsDirectoryFullPath))
+                removeSync(downloadsDirectoryFullPath)
+                done()
+            })
 
     })
 

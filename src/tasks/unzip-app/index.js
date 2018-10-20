@@ -1,4 +1,13 @@
-export const unzipApp = () => () => new Promise((resolve, reject) => {
+export const unzipApp = ({
+    logger
+}) => () => new Promise((resolve, reject) => {
+
+    logger.info({
+        function: 'unzipApp',
+        params: {
+            
+        }
+    })
 
     resolve()
 

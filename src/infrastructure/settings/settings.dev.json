@@ -1,0 +1,13 @@
+{
+	"pubsub": {
+        "gcp": {
+            "type": "mock",
+            "googleApplicationCredentials": "gcp-service-account.json",
+            "baseSubscription": "projects/smart-home-monitoring-system/subscriptions/take-photo"
+        }
+    },
+    "downloadAppRelease": {
+        "type": "mock",
+        "downloadsDirectory": "coopie-cam-app-downloads"
+    }
+}
