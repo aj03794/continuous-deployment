@@ -3,7 +3,6 @@ import { existsSync, removeSync } from 'fs-extra'
 import { resolve as resolvePath } from 'path'
 import { homedir } from 'os'
 
-import { checkIfOldVersionOfAppIsRunning } from './infrastructure/pm2'
 import { createSubject } from './infrastructure/rxjs'
 import { logger } from './infrastructure/logger'
 import { initializeApplicationHandler } from './application-handler'

@@ -4,7 +4,7 @@ import { homedir } from 'os'
 
 export const real = ({
   getSetting,
-  newPubSubMsg,
+  newPubSubMessage,
 }) => {
 
     const {
@@ -22,7 +22,7 @@ export const real = ({
 
     const messageHandler = message => {
 
-    newPubSubMsg({
+    newPubSubMessage({
         command: 'take-photo',
         from: 'cloud'   
     })

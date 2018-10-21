@@ -24,8 +24,6 @@ export const initializeApplicationHandler = ({
                     logger.info('Finished')
                 })
                 .catch(err => {
-                    console.log(err)
-                    logger.info('adsfasfd')
                     logger.error('Error', err)
                 })
 

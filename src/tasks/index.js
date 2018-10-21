@@ -1,11 +1,9 @@
 import { exec } from 'child_process'
 import { resolve as resolvePath } from 'path'
 import { homedir } from 'os'
-import downloadRelease from 'download-github-release'
 import { ensureDir, remove } from 'fs-extra'
 import pm2 from 'pm2'
 
-import { checkIfOldVersionOfAppIsRunning } from '../infrastructure/pm2'
 import { deleteZip as deleteZipCreator } from './delete-zip'
 import { downloadAppRelease as downloadAppReleaseCreator } from './download-app-release'
 import { unzipApp as unzipAppCreator} from './unzip-app'
@@ -14,7 +12,8 @@ import { turnOnNewApp as turnOnNewAppCreator } from './turn-on-new-app'
 
 export const createTasks = ({
     logger,
-    getSetting
+    getSetting,
+    checkIfOldVersionOfAppIsRunning
 }) => {
 
     const {
@@ -30,7 +29,6 @@ export const createTasks = ({
     })
     const downloadAppRelease = downloadAppReleaseCreator({
         exec,
-        downloadRelease,
         type,
         logger,
         downloadsDirectoryFullPath,

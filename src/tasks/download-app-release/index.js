@@ -16,8 +16,7 @@ export const downloadAppRelease = ({
             name,
             owner: {
                 login
-            },
-            clone_url
+            }
         }
     } = msg
 
@@ -38,8 +37,7 @@ export const downloadAppRelease = ({
                         ...args,
                         logger,
                         appName: name,
-                        login,
-                        clone_url
+                        user: login
                     }))
             })
 

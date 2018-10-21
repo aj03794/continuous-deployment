@@ -1,16 +1,24 @@
 export const initializePubSubProviders = ({
     getSetting,
-    newPubSubMsg
+    newPubSubMessage
 }) => {
 
     const { type } = getSetting('pubsub').gcp
+
+    console.log({
+        type
+    })
+
     return import(`./gcp/${type}`)
         .then(({
             [type]: pubSub
         }) => {
+
+            console.log(pubSub)
+
             pubSub({
                 getSetting,
-                newPubSubMsg
+                newPubSubMessage
             })
         })
 

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf dist && babel src --out-dir dist",
+    "build": "rm -rf dist && babel src --out-dir dist --copy-files",
     "start": "npm run build && node dist/index.js",
     "start-dev": "npm run build && node dist/index.js dev",
     "test": "./node_modules/mocha/bin/_mocha --require @babel/register --timeout 2000 src/**/*.test.js --exit"

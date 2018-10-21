@@ -1,8 +1,10 @@
+import { checkIfOldVersionOfAppIsRunning } from './infrastructure/pm2'
 import { createSubject } from './infrastructure/rxjs'
 import { logger } from './infrastructure/logger'
 import { initializePubSubProviders } from './infrastructure/pubsub'
-import { initalizeApplicationHandler } from './application-handler'
+import { initializeApplicationHandler } from './application-handler'
 import { createTasks } from './tasks'
+import { getSetting } from './infrastructure/settings'
 
 const {
 	next: newPubSubMessage,
@@ -10,13 +12,16 @@ const {
 	subscribe: pubSubMessageSubscription
 } = createSubject()
 
-const tasks = createTasks()
+const tasks = createTasks({
+	logger,
+	getSetting
+})
 
-initalizeApplicationHandler({
+initializeApplicationHandler({
 	pubSubMessageSubscription,
     logger,
     ...tasks
 })
 .then(() => {
-	initializePubSubProviders({ newPubSubMsg, getSetting })
+	initializePubSubProviders({ newPubSubMessage, getSetting })
 })
