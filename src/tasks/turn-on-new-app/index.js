@@ -3,7 +3,7 @@ export const turnOnNewApp = ({
 }) => () => new Promise((resolve, reject) => {
 
     logger.info({
-        function: 'turnOffOldApp',
+        function: 'turnOffNewApp',
         params: {
             
         }

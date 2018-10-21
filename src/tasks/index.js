@@ -2,7 +2,8 @@ import { exec } from 'child_process'
 import { resolve as resolvePath } from 'path'
 import { homedir } from 'os'
 import downloadRelease from 'download-github-release'
-import { ensureDir } from 'fs-extra'
+import { ensureDir, remove } from 'fs-extra'
+import pm2 from 'pm2'
 
 import { deleteZip as deleteZipCreator } from './delete-zip'
 import { downloadAppRelease as downloadAppReleaseCreator } from './download-app-release'
@@ -21,7 +22,11 @@ export const createTasks = ({
     } = getSetting('downloadAppRelease')
     const downloadsDirectoryFullPath = resolvePath(homedir(), downloadsDirectory)
 
-    const deleteZip = deleteZipCreator({ logger })
+    const deleteZip = deleteZipCreator({
+        logger,
+        downloadsDirectoryFullPath,
+        remove
+    })
     const downloadAppRelease = downloadAppReleaseCreator({
         exec,
         downloadRelease,
@@ -31,8 +36,16 @@ export const createTasks = ({
         resolvePath,
         ensureDir
     })
-    const unzipApp = unzipAppCreator({ logger })
-    const turnOffOldApp = turnOffOldAppCreator({ logger })
+    const unzipApp = unzipAppCreator({
+        logger,
+        exec,
+        downloadsDirectoryFullPath
+    })
+    const turnOffOldApp = turnOffOldAppCreator({
+        logger,
+        pm2,
+        exec
+    })
     const turnOnNewApp = turnOnNewAppCreator({ logger })
 
     return {

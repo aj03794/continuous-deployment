@@ -8,15 +8,16 @@
 export const application = ({
     downloadAppRelease,
     unzipApp,
-    deleteZip,
     turnOffOldApp,
-    turnOnNewApp
+    turnOnNewApp,
+    deleteZip,
+    msg
 }) => {
 
-    return downloadAppRelease()
-            .then(unzipApp)
-            .then(deleteZip)
-            .then(turnOffOldApp)
-            .then(turnOnNewApp)
+    return downloadAppRelease({ msg })
+            .then(() => unzipApp({ msg }))
+            .then(() => deleteZip({ msg }))
+            .then(() => turnOffOldApp({ msg }))
+            .then(() => turnOnNewApp({ msg }))
 
 }

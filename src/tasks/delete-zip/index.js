@@ -1,14 +1,29 @@
 export const deleteZip = ({
-    logger
-}) => () => new Promise((resolve, reject) => {
+    logger,
+    remove,
+    downloadsDirectoryFullPath
+}) => ({
+    msg
+}) => {
+
+    const {
+        repository: {
+            name
+        }
+    } = msg
+
+    const location = `${downloadsDirectoryFullPath}/${name}.zip`
 
     logger.info({
         function: 'deleteZip',
         params: {
-            
+            remove: {
+                location
+            }
         }
     })
 
-    resolve()
 
-})
+    return remove(location)
+
+}

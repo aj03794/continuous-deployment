@@ -8,6 +8,6 @@
     },
     "downloadAppRelease": {
         "type": "mock",
-        "downloadsDirectory": "coopie-cam-app-downloads"
+        "downloadsDirectory": "cooper-cam-app-downloads"
     }
 }

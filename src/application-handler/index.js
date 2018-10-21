@@ -19,7 +19,7 @@ export const initializeApplicationHandler = ({
 
         console.log('msg', msg)
 
-        return application(tasks)
+        return application({ ...tasks, msg})
                 .then(() => {
                     logger.info('Finished')
                 })
