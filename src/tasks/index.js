@@ -5,6 +5,7 @@ import downloadRelease from 'download-github-release'
 import { ensureDir, remove } from 'fs-extra'
 import pm2 from 'pm2'
 
+import { checkIfOldVersionOfAppIsRunning } from '../infrastructure/pm2'
 import { deleteZip as deleteZipCreator } from './delete-zip'
 import { downloadAppRelease as downloadAppReleaseCreator } from './download-app-release'
 import { unzipApp as unzipAppCreator} from './unzip-app'
@@ -44,9 +45,14 @@ export const createTasks = ({
     const turnOffOldApp = turnOffOldAppCreator({
         logger,
         pm2,
-        exec
+        exec,
+        checkIfOldVersionOfAppIsRunning
     })
-    const turnOnNewApp = turnOnNewAppCreator({ logger })
+    const turnOnNewApp = turnOnNewAppCreator({
+        logger,
+        pm2,
+        downloadsDirectoryFullPath
+    })
 
     return {
         deleteZip,

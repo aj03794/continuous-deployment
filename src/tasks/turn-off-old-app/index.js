@@ -1,11 +1,12 @@
+import { exec } from "child_process";
+
 export const turnOffOldApp = ({
     logger,
-    pm2
+    pm2,
+    checkIfOldVersionOfAppIsRunning
 }) => ({
     msg
 }) => new Promise((resolve, reject) => {
-
-    console.log('msg', msg)
 
     const {
         release: {
@@ -16,20 +17,30 @@ export const turnOffOldApp = ({
         }
     } = msg
 
+    const appName = `${name}_${tag_name}`
+
     logger.info({
         function: 'turnOffOldApp',
-        params: {
-            pm2Delete: {
-                process: 'mock-app-0.0.1'
-            }
-        }
     })
-
-    pm2.delete('mock-app-0.0.1', err => {
-        if (err) {
-            return reject(err)
+    
+    checkIfOldVersionOfAppIsRunning({
+        newApp: appName
+    })
+    .then(oldApp => {
+        if (oldApp) {
+            return pm2.delete(oldApp, err => {
+                if (err) {
+                    console.log('err', err)
+                    return reject(err)
+                }
+                logger.info(`Finished deleting ${oldApp}`)
+                return resolve()
+            })
         }
         return resolve()
+    })
+    .catch(() => {
+        resolve()
     })
 
 })

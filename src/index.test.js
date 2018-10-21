@@ -2,8 +2,8 @@ import { assert } from 'chai'
 import { existsSync, removeSync } from 'fs-extra'
 import { resolve as resolvePath } from 'path'
 import { homedir } from 'os'
-import pm2 from 'pm2'
 
+import { checkIfOldVersionOfAppIsRunning } from './infrastructure/pm2'
 import { createSubject } from './infrastructure/rxjs'
 import { logger } from './infrastructure/logger'
 import { initializeApplicationHandler } from './application-handler'
@@ -58,7 +58,7 @@ describe('Downloader application', () => {
 
     })
 
-    it.only('should perform steps in the application layer', done => {
+    it.only('should perform tasks in the application layer', done => {
 
         const msg = fakeGcpMessage
 
@@ -68,42 +68,36 @@ describe('Downloader application', () => {
          } = getSetting('downloadAppRelease')
         const downloadsDirectoryFullPath = resolvePath(homedir(), downloadsDirectory)
 
-        const mockAppDir = resolvePath('mock-app')
+        const mockAppDir = resolvePath('mock-app_0.0.2')
 
-        // execSync(`pm2 start index.js --name mock-app-0.0.1`, {
-        //     cwd: mockAppDir
-        // })
+        execSync(`pm2 start index.js --name mock-app_0.0.1 --no-autorestart`, {
+            cwd: mockAppDir
+        })
 
-        const pm2AppsRunning = pm2.list((err, processes) => {
-            return processes.map(({ name }) => {
-                console.log({
-                    name
-                })
-                return name
+        const expectedApp = resolvePath(downloadsDirectoryFullPath, 'mock-app_0.0.2')
+        const expectedZip = resolvePath(downloadsDirectoryFullPath, 'mock-app_0.0.2.zip')
+
+        application({ ...tasks, msg })
+            .then(() => {
+                console.log('then block of application')
+                assert.equal(true, existsSync(downloadsDirectoryFullPath))
+                assert.equal(true, existsSync(expectedApp))
+                assert.equal(false, existsSync(expectedZip))
+                assert.equal('false\n', execSync(`pm2 list | grep mock-app_0.0.1 && echo true || echo false`).toString())
+                assert.equal('true\n', execSync(`pm2 list | grep mock-app_0.0.2 >/dev/null 2>&1 && echo true || echo false`).toString())
+                removeSync(downloadsDirectoryFullPath)
+                execSync(`pm2 delete mock-app_0.0.2`)
+                done()
             })
-        })
+            .catch(err => {
+                console.log('error', err)
+            })
+        
 
-        console.log({
-            pm2AppsRunning
-        })
+    })
 
-        const expectedApp = resolvePath(downloadsDirectoryFullPath, 'mock-app')
-        const expectedZip = resolvePath(downloadsDirectoryFullPath, 'mock-app.zip')
-
-        // application({ ...tasks, msg })
-        //     .then(() => {
-        //         assert.equal(true, existsSync(downloadsDirectoryFullPath))
-        //         assert.equal(true, existsSync(expectedApp))
-        //         assert.equal(false, existsSync(expectedZip))
-        //         assert.equal(false, pm2.list().some(app => app === 'mock-app-0.0.1'))
-        //         removeSync(downloadsDirectoryFullPath)
-                // execSync(`pm2 delete mock-app-0.0.2`)
-                // done()
-            // })
-            // .catch(err => {
-            //     console.log('error', err)
-            // })
-
+    it.only('should pass', done => {
+        done()
     })
 
 

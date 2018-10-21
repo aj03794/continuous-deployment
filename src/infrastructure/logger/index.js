@@ -6,6 +6,6 @@ export const logger = Object.keys({
 }).reduce((obj, level) => ({ 
     ...obj,
     [level]: log => {
-        console.log(log)
+        console.log(JSON.stringify(log))
     }
 }), {})
