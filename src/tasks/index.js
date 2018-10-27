@@ -38,6 +38,7 @@ export const createTasks = ({
     const unzipApp = unzipAppCreator({
         logger,
         exec,
+        ensureDir,
         downloadsDirectoryFullPath
     })
     const turnOffOldApp = turnOffOldAppCreator({

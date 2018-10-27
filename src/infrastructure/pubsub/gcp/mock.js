@@ -5,7 +5,7 @@ export const mock = ({
     setTimeout(() => {
         newPubSubMessage({
             release: {
-                tag_name: '0.0.136'
+                tag_name: '0.0.134'
             },
             repository: {
                 name: "raspberry-pi-camera",

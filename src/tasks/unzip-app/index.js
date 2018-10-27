@@ -1,6 +1,7 @@
 export const unzipApp = ({
     logger,
     downloadsDirectoryFullPath,
+    ensureDir,
     exec
 }) => ({
     msg
@@ -15,7 +16,9 @@ export const unzipApp = ({
         }
     } = msg
 
-    const command = `unzip ${name}_${tag_name}.zip`
+    const app = `${name}-${tag_name}`
+    const appFolderFullPath = `${downloadsDirectoryFullPath}/${app}`
+    const command = `unzip -qq ${app}.zip -d ${appFolderFullPath}`
 
     const opts = {
         cwd: downloadsDirectoryFullPath
@@ -24,6 +27,9 @@ export const unzipApp = ({
     logger.info({
         function: 'unzipApp',
         params: {
+            ensureDir: {
+                appFolderFullPath
+            },
             exec: {
                 command,
                 opts
@@ -31,15 +37,26 @@ export const unzipApp = ({
         }
     })
 
-    exec(command, opts, (err, stdout, stderr) => {
-        if (err) {
-            return reject(err)
-        }
-        logger.info({
-            function: 'unzipApp',
-            msg: `Finished unzipping app`
+    ensureDir(appFolderFullPath)
+    .then(() => {
+        exec(command, opts, (err, stdout, stderr) => {
+            if (err) {
+                return reject(err.message)
+            }
+            logger.info({
+                stderr,
+                stdout
+            })
+            logger.info({
+                function: 'unzipApp',
+                msg: `Finished unzipping app`
+            })
+            return resolve()
         })
-        return resolve()
     })
+    .catch(err => {
+        reject(err)
+    })
+   
 
 })

@@ -17,7 +17,7 @@ export const turnOffOldApp = ({
         }
     } = msg
 
-    const appName = `${name}_${tag_name}`
+    const appName = `${name}-${tag_name}`
 
     logger.info({
         function: 'turnOffOldApp',

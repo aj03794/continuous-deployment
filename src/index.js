@@ -14,7 +14,8 @@ const {
 
 const tasks = createTasks({
 	logger,
-	getSetting
+	getSetting,
+	checkIfOldVersionOfAppIsRunning
 })
 
 initializeApplicationHandler({

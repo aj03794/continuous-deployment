@@ -7,7 +7,7 @@
         }
     },
     "downloadAppRelease": {
-        "type": "mock",
+        "type": "real",
         "downloadsDirectory": "cooper-cam-app-downloads"
     }
 }

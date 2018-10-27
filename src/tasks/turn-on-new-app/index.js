@@ -15,7 +15,7 @@ export const turnOnNewApp = ({
         }
     } = msg
 
-    const appName = `${name}_${tag_name}`
+    const appName = `${name}-${tag_name}`
 
     const options = {
         name: appName,
