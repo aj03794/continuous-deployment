@@ -16,7 +16,7 @@ export const unzipApp = ({
         }
     } = msg
 
-    const app = `${name}-${tag_name}`
+    const app = `${name}_${tag_name}`
     const appFolderFullPath = `${downloadsDirectoryFullPath}/${app}`
     const command = `unzip -qq ${app}.zip -d ${appFolderFullPath}`
 
