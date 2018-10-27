@@ -7,12 +7,16 @@ export const unzipApp = ({
 }) => new Promise((resolve, reject) => {
 
     const {
+        release: {
+            tag_name
+        },
         repository: {
             name
         }
     } = msg
 
-    const command = `unzip ${name}.zip`
+    const command = `unzip ${name}_${tag_name}.zip`
+
     const opts = {
         cwd: downloadsDirectoryFullPath
     }

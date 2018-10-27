@@ -3,21 +3,20 @@ export const execute = ({
     exec,
     downloadsDirectoryFullPath,
     resolvePath,
-    appName
+    appName,
+    tagName
 }) => new Promise((resolve, reject) => {
 
     const mockAppLocation = resolvePath(__dirname, '../../../../', 'mock-app_0.0.2')
 
+    const execCommand = `zip -r ${downloadsDirectoryFullPath}/${appName}_${tagName}.zip ${appName}_${tagName}/`
+
     logger.info({
         function: 'mockDownloadAppRelease',
         params: {
-            appName,
-            mockAppLocation,
-            downloadsDirectoryFullPath
+            execCommand
         }
     })
-
-    const execCommand = `zip -r ${downloadsDirectoryFullPath}/${appName}.zip mock-app_0.0.2/`
 
     exec(execCommand,(err, stdout, stderr) => {
         if (err) {

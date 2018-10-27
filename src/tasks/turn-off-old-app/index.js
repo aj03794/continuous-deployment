@@ -30,7 +30,6 @@ export const turnOffOldApp = ({
         if (oldApp) {
             return pm2.delete(oldApp, err => {
                 if (err) {
-                    console.log('err', err)
                     return reject(err)
                 }
                 logger.info(`Finished deleting ${oldApp}`)

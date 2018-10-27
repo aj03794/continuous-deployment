@@ -9,6 +9,7 @@ import { initializeApplicationHandler } from './application-handler'
 import { application } from './application'
 import { createTasks } from './tasks'
 import { getSetting } from './infrastructure/settings'
+import { checkIfOldVersionOfAppIsRunning } from './infrastructure/pm2'
 import { execSync } from 'child_process'
 
 process.argv[2] = 'dev'
@@ -32,7 +33,8 @@ describe('Downloader application', () => {
 
     const tasks = createTasks({
         logger,
-        getSetting
+        getSetting,
+        checkIfOldVersionOfAppIsRunning
     })
 
     it('should call application function inside of application-handler', done => {
@@ -57,7 +59,7 @@ describe('Downloader application', () => {
 
     })
 
-    it.only('should perform tasks in the application layer', done => {
+    it.only('should perform tasks in the application layer with an existing application', done => {
 
         const msg = fakeGcpMessage
 
@@ -83,6 +85,37 @@ describe('Downloader application', () => {
                 assert.equal(true, existsSync(expectedApp))
                 assert.equal(false, existsSync(expectedZip))
                 assert.equal('false\n', execSync(`pm2 list | grep mock-app_0.0.1 && echo true || echo false`).toString())
+                assert.equal('true\n', execSync(`pm2 list | grep mock-app_0.0.2 >/dev/null 2>&1 && echo true || echo false`).toString())
+                removeSync(downloadsDirectoryFullPath)
+                execSync(`pm2 delete mock-app_0.0.2`)
+                done()
+            })
+            .catch(err => {
+                console.log('error', err)
+            })
+        
+
+    })
+
+    it.only('should perform tasks in the application layer with a new app', done => {
+
+        const msg = fakeGcpMessage
+
+        const {
+            type,
+            downloadsDirectory
+         } = getSetting('downloadAppRelease')
+        const downloadsDirectoryFullPath = resolvePath(homedir(), downloadsDirectory)
+
+        const expectedApp = resolvePath(downloadsDirectoryFullPath, 'mock-app_0.0.2')
+        const expectedZip = resolvePath(downloadsDirectoryFullPath, 'mock-app_0.0.2.zip')
+
+        application({ ...tasks, msg })
+            .then(() => {
+                console.log('then block of application')
+                assert.equal(true, existsSync(downloadsDirectoryFullPath))
+                assert.equal(true, existsSync(expectedApp))
+                assert.equal(false, existsSync(expectedZip))
                 assert.equal('true\n', execSync(`pm2 list | grep mock-app_0.0.2 >/dev/null 2>&1 && echo true || echo false`).toString())
                 removeSync(downloadsDirectoryFullPath)
                 execSync(`pm2 delete mock-app_0.0.2`)

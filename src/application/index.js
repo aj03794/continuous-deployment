@@ -17,7 +17,7 @@ export const application = ({
     return downloadAppRelease({ msg })
             .then(() => unzipApp({ msg }))
             .then(() => deleteZip({ msg }))
-            // .then(() => turnOffOldApp({ msg }))
-            // .then(() => turnOnNewApp({ msg }))
+            .then(() => turnOffOldApp({ msg }))
+            .then(() => turnOnNewApp({ msg }))
 
 }

@@ -7,12 +7,15 @@ export const deleteZip = ({
 }) => {
 
     const {
+        release: {
+            tag_name
+        },
         repository: {
             name
         }
     } = msg
 
-    const location = `${downloadsDirectoryFullPath}/${name}.zip`
+    const location = `${downloadsDirectoryFullPath}/${name}_${tag_name}.zip`
 
     logger.info({
         function: 'deleteZip',

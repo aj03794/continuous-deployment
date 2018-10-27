@@ -12,6 +12,9 @@ export const downloadAppRelease = ({
     } = args
 
     const {
+        release: {
+            tag_name: tagName
+        },
         repository: {
             name,
             owner: {
@@ -37,6 +40,7 @@ export const downloadAppRelease = ({
                         ...args,
                         logger,
                         appName: name,
+                        tagName,
                         user: login
                     }))
             })
